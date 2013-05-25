@@ -2,14 +2,14 @@ import MySQLdb
 import pyPdf
 import os
 import nltk
-from bottle import route, run, template, request
+from bottle import route, run, template, request, static_file
 
 ############### routing starts here
 
 
 @route('/')
 def index(name='World'):
-    return template('index', name=name)
+    return template('index', name=name, data=False)
 
 
 @route('/upload', method='POST')
@@ -20,6 +20,12 @@ def upload():
         return 'File extension not allowed.'
     frequency_data = get_word_frequency(pyPdf.PdfFileReader(data.file), data)
     return template('index', data=frequency_data)
+
+
+@route('/static/<filename>')
+def server_static(filename):
+    return static_file(filename, root='./statics/')
+
 
 ############### functions starts here
 
@@ -37,7 +43,8 @@ def get_word_frequency(pdf, data):
     stopwords = nltk.corpus.stopwords.words('english')
     symbols = ["'", '"', '`', '.', ',', '-', '!', '?', ':', ';', '(', ')']
     fdist = nltk.FreqDist(w.lower() for w in text if w.lower() not in stopwords + symbols)
-    return fdist.plot(50, cumulative=True)
+    return fdist.keys()[:50]
+
 
 
 def get_data():
