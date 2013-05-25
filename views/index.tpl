@@ -18,7 +18,7 @@
     var chart = new CanvasJS.Chart("chartContainer",
     {
       title:{
-        text: "theme",
+        text: "word frequency in paper",
       },
       axisY: {
         title: "frequency(times)"
@@ -36,19 +36,18 @@
         legendMarkerColor: "grey",
         legendText: "words",
         dataPoints: [
-        {y: 297571, label: "Venezuela"},
-        {y: 267017,  label: "Saudi" },
-        {y: 175200,  label: "Canada"},
-        {y: 154580,  label: "Iran"},
-        {y: 116000,  label: "Russia"},
-        {y: 97800, label: "UAE"},
-        {y: 20682,  label: "US"},
-        {y: 20350,  label: "China"},
+        % i = 0
+        %for key in data:
+          %if i == 50:
+            % break
+          %end
+          {y: {{data[key]}}, label: "{{key}}" },
+          % i += 1
+        %end
         ]
       },
       ]
     });
-
     chart.render();
   }
   </script>
