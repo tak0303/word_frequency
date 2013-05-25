@@ -18,8 +18,8 @@ def upload():
     name, ext = os.path.splitext(data.filename)
     if ext != '.pdf':
         return 'File extension not allowed.'
-    frequency_data = get_word_frequency(pyPdf.PdfFileReader(data.file), data)
-    return template('index', data=frequency_data)
+    fdist = get_word_frequency(pyPdf.PdfFileReader(data.file), data)
+    return template('index', data=fdist)
 
 
 @route('/static/<filename>')
@@ -43,8 +43,7 @@ def get_word_frequency(pdf, data):
     stopwords = nltk.corpus.stopwords.words('english')
     symbols = ["'", '"', '`', '.', ',', '-', '!', '?', ':', ';', '(', ')']
     fdist = nltk.FreqDist(w.lower() for w in text if w.lower() not in stopwords + symbols)
-    return fdist.keys()[:50]
-
+    return fdist
 
 
 def get_data():
