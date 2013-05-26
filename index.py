@@ -9,17 +9,18 @@ from bottle import route, run, template, request, static_file
 
 @route('/')
 def index(name='World'):
-    return template('index', name=name, data=False)
+    category = get_all_data('category')
+    return template('index', name=name, category=category)
 
 
 @route('/upload', method='POST')
 def upload():
-    data = request.files.get('piyo')
+    data = request.files.get('file')
     name, ext = os.path.splitext(data.filename)
     if ext != '.pdf':
         return 'File extension not allowed.'
-    fdist = get_word_frequency(pyPdf.PdfFileReader(data.file), data)
-    return template('index', data=fdist)
+    fdist, text = get_word_frequency(pyPdf.PdfFileReader(data.file), data)
+    return template('show', data=fdist, text=text)
 
 
 @route('/static/<filename>')
@@ -43,10 +44,10 @@ def get_word_frequency(pdf, data):
     stopwords = nltk.corpus.stopwords.words('english')
     symbols = ["'", '"', '`', '.', ',', '-', '!', '?', ':', ';', '(', ')']
     fdist = nltk.FreqDist(w.lower() for w in text if w.lower() not in stopwords + symbols)
-    return fdist
+    return fdist, raw_text
 
 
-def get_data():
+def get_all_data(table):
     connect = MySQLdb.connect(
         db="software_class",
         host="localhost",
@@ -55,7 +56,7 @@ def get_data():
         passwd="bukyoku"
     )
     cur = connect.cursor()
-    cur.execute('')
+    cur.execute('SELECT * FROM ' + table)
     data = cur.fetchall()
     cur.close
     connect.close()
