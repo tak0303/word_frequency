@@ -34,3 +34,8 @@ form{
 .form_wrapper{
   margin: 20px 50px;
 }
+
+#text{
+  width: 900px;
+  margin: 0 auto;
+}
