@@ -2,7 +2,6 @@ import MySQLdb
 import pyPdf
 import os
 import nltk
-import MySQLdb
 from bottle import route, run, template, request, static_file
 
 ############### routing starts here
