@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>test</title>
+  <title>MonoGraphY</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
   <header>
     <div class="header_wrap">
-      <div class="title">Software Engineering</div>
+      <div class="title">MonoGraphY</div>
     </div>
   </header>
   <form action="/upload" method="post" enctype="multipart/form-data">

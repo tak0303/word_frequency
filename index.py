@@ -2,6 +2,7 @@ import MySQLdb
 import pyPdf
 import os
 import nltk
+import MySQLdb
 from bottle import route, run, template, request, static_file
 
 ############### routing starts here
@@ -16,10 +17,11 @@ def index(name='World'):
 @route('/upload', method='POST')
 def upload():
     data = request.files.get('file')
+    category_id = request.forms.get('category')
     name, ext = os.path.splitext(data.filename)
     if ext != '.pdf':
         return 'File extension not allowed.'
-    fdist, text = get_word_frequency(pyPdf.PdfFileReader(data.file), data)
+    fdist, text = get_word_frequency(pyPdf.PdfFileReader(data.file), data, category_id)
     return template('show', data=fdist, text=text)
 
 
@@ -31,7 +33,7 @@ def server_static(filename):
 ############### functions starts here
 
 
-def get_word_frequency(pdf, data):
+def get_word_frequency(pdf, data, category_id):
     pdf = pyPdf.PdfFileReader(data.file)
     raw_text = ""
     for page in pdf.pages:
@@ -44,23 +46,44 @@ def get_word_frequency(pdf, data):
     stopwords = nltk.corpus.stopwords.words('english')
     symbols = ["'", '"', '`', '.', ',', '-', '!', '?', ':', ';', '(', ')']
     fdist = nltk.FreqDist(w.lower() for w in text if w.lower() not in stopwords + symbols)
+
+    insert_freq_data(fdist, raw_text, category_id)
+
     return fdist, raw_text
 
 
-def get_all_data(table):
-    connect = MySQLdb.connect(
-        db="software_class",
-        host="localhost",
-        port=3306,
-        user="root",
-        passwd="bukyoku"
+def insert_freq_data(fdist, raw_text, category_id):
+    connect = connect_to_db()
+    cur = connect.cursor()
+    cur.execute(
+        'INSERT INTO papers'
+        '(body, category_id)'
+        'VALUES(%s, %s)',
+        (raw_text, category_id)
     )
+    cur.close()
+    connect.close()
+
+
+def get_all_data(table):
+    connect = connect_to_db()
     cur = connect.cursor()
     cur.execute('SELECT * FROM ' + table)
     data = cur.fetchall()
     cur.close
     connect.close()
     return data
+
+
+def connect_to_db():
+    connect = MySQLdb.connect(
+        db="software_class",
+        host="localhost",
+        port=3306,
+        user="root",
+        passwd=""
+    )
+    return connect
 
 # run the server
 run(host='localhost', port=8080, debug=True, reloader=True)
