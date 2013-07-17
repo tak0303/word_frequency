@@ -46,12 +46,13 @@ def get_word_frequency(pdf, data, category_id):
     symbols = ["'", '"', '`', '.', ',', '-', '!', '?', ':', ';', '(', ')']
     fdist = nltk.FreqDist(w.lower() for w in text if w.lower() not in stopwords + symbols)
 
-    insert_freq_data(fdist, raw_text, category_id)
+    insert_paper(raw_text, category_id)
+    # insert_freq_data(paper_id, fdist)
 
     return fdist, raw_text
 
 
-def insert_freq_data(fdist, raw_text, category_id):
+def insert_paper(raw_text, category_id):
     connect = connect_to_db()
     cur = connect.cursor()
     cur.execute(
@@ -60,6 +61,22 @@ def insert_freq_data(fdist, raw_text, category_id):
         'VALUES(%s, %s)',
         (raw_text, category_id)
     )
+    last_insert_id = cur.execute("SELECT LAST_INSERT_ID() FROM papers")
+    cur.close()
+    connect.close()
+    return last_insert_id
+
+
+def insert_freq_data(paper_id, fdist):
+    connect = connect_to_db()
+    cur = connect.cursor()
+    for key in fdist:
+        cur.execute(
+            'INSERT INTO frequency'
+            '(paper_id, word, num)'
+            'VALUES(%d %s %d)'
+            (paper_id, key, fdist[key])
+        )
     cur.close()
     connect.close()
 
